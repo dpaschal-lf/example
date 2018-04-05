@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<style type="text/css">
+#blobContainer{
+	height: 100vh;
+	width: 100vw;
+	position: relative;
+	filter: url(#goo);
+}		
+#blobContainer div{
+	height: 50px;
+	width: 50px;
+	background-color: brown;
+	border-radius: 50%;
+	position: absolute;
+	top: 200px;
+}
+
+#blobContainer div:nth-child(1){
+	left: 400px;
+}
+#blobContainer div:nth-child(2){
+	left: 450px;
+}
+.newBlobs{
+	
+}
+	</style>
+	<script src="https://code.jquery.com/jquery-3.1.0.js"></script>
+
+	<script type="text/javascript">
+$(document).ready(initApp);
+
+var currentSyrupBlob = null;
+var initialBlobSize = 5;
+var halfInitialBlobSize = initialBlobSize/2;
+var blobPourRate = 5;
+var halfBlobPourRate = blobPourRate/2;
+var blobPourIntervalTimer = null;
+function initApp(){
+	addEventHandlers();
+}
+
+function addEventHandlers(){
+	$("#blobContainer").on('mousedown', startSyrupPour);
+	$("#blobContainer").on('mouseup', stopSyrupPour)
+}
+
+function startSyrupPour(event){
+	console.log('starting');
+	var newBlob = $("<div>",{
+		class: 'newBlobs',
+		css: {
+			left: event.clientX-halfInitialBlobSize+'px',
+			top: event.clientY-halfInitialBlobSize+'px',
+			height: '5px',
+			width: '5px'
+		},
+	});
+	currentSyrupBlob = newBlob[0];
+	currentSyrupBlob.currentHeight = 5;
+	currentSyrupBlob.currentWidth =  5;
+	$("#blobContainer").append(newBlob);
+	blobPourIntervalTimer = setInterval(continueSyrupPour, 100)
+}
+function continueSyrupPour(){
+	debugger;
+	var currentPosition = $(currentSyrupBlob).position();
+	currentSyrupBlob.currentHeight+=blobPourRate;
+	currentSyrupBlob.currentWidth+=blobPourRate;
+	currentPosition.left -= halfBlobPourRate;
+	currentPosition.top -= halfBlobPourRate;
+	$(currentSyrupBlob).css({
+		left: currentPosition.left + 'px',
+		top: currentPosition.top + 'px',
+		height: currentSyrupBlob.currentHeight+'px',
+		width: currentSyrupBlob.currentWidth+'px'
+	});
+	console.log('pouring:'+currentSyrupBlob.currentHeight);
+}
+
+function stopSyrupPour(){
+	console.log('stopping')
+	clearInterval(blobPourIntervalTimer);
+	blobPourIntervalTimer = null;
+}
+		
+	</script>
+</head>
+<body>
+<div id="blobContainer">
+	<div></div><div></div>
+</div>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <defs>
+    <filter id="goo">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blurredBlobs" />
+      <feColorMatrix in="blurredBlobs" mode="matrix" values="1 0 0 0 0  
+              0 1 0 0 0  
+              0 0 1 0 0  
+              0 0 0 20 -10" result="contrastedBlobs" />
+      <feComposite in="SourceGraphic" in2="contrastedBlobs" operator="atop"/>
+   
+    </filter>
+  </defs>
+</svg>
+</body>
+</html>
